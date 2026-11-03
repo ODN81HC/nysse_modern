@@ -3,6 +3,7 @@
 #include "location.hpp"
 #include "playeractor.hpp"
 #include "statistics.hpp"
+#include "actor_variant_helpers.hpp"
 // 1. Port of testMorePassenger from your 2019 tst_statisticstest.cpp
 TEST(StatisticsTest, MorePassengers)
 {
@@ -85,4 +86,9 @@ TEST(ActorTest, PlayerAndEnemyMovement)
     StudentSide::Enemy test_enemy(start_location, {});
     EXPECT_FALSE(test_enemy.isRemoved());
     EXPECT_EQ(test_enemy.giveLocation(), start_location);
+}
+// Stage 2 test
+TEST(ActorVariantTest, TypeAndLocationGet)
+{
+
 }

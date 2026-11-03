@@ -1,6 +1,4 @@
-#ifndef LOCATION_HH
-#define LOCATION_HH
-
+#pragma once
 /**
   * @file
   * @brief Defines a class that contains methods for handling location. (coordinates)
@@ -142,5 +140,3 @@ private:
 };
 
 }
-
-#endif // LOCATION_HH

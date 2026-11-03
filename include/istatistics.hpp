@@ -1,6 +1,4 @@
-#ifndef ISTATISTICS_HH
-#define ISTATISTICS_HH
-
+#pragma once
 /**
   * @file
   * @brief Defines an interface for scoring statistics.
@@ -59,5 +57,3 @@ public:
 };
 
 }
-
-#endif // ISTATISTICS_HH
