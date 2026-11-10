@@ -11,6 +11,7 @@ add_library(nysse_core STATIC
     src/statistics.cpp
     src/playeractor.cpp
     src/enemy.cpp
+    src/modern_city.cpp
 )
 
 target_include_directories(nysse_core PUBLIC

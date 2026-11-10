@@ -4,6 +4,8 @@
 #include "playeractor.hpp"
 #include "statistics.hpp"
 #include "actor_variant_helpers.hpp"
+#include "modern_city.hpp"
+
 // 1. Port of testMorePassenger from your 2019 tst_statisticstest.cpp
 TEST(StatisticsTest, MorePassengers)
 {
@@ -90,5 +92,44 @@ TEST(ActorTest, PlayerAndEnemyMovement)
 // Stage 2 test
 TEST(ActorVariantTest, TypeAndLocationGet)
 {
+    StudentSide::ActorVariant empty_actor;
+    EXPECT_EQ(StudentSide::getActorType(empty_actor), StudentSide::ActorType::Empty);
+    EXPECT_FALSE(StudentSide::getActorLocation(empty_actor).has_value());
 
+    Interface::Location start_location(6700000, 3500000);
+    StudentSide::ActorVariant player_actor = StudentSide::PlayerActor(start_location);
+    EXPECT_EQ(StudentSide::getActorType(player_actor), StudentSide::ActorType::Player);
+    EXPECT_TRUE(StudentSide::getActorLocation(player_actor).has_value());
+    EXPECT_EQ(StudentSide::getActorLocation(player_actor), start_location);
+
+    StudentSide::ActorVariant enemy_actor = StudentSide::Enemy(start_location, {});
+    EXPECT_EQ(StudentSide::getActorType(enemy_actor), StudentSide::ActorType::Enemy);
+}
+
+TEST(ModernCityTest, AddCountFindAndRemove)
+{
+    StudentSide::ModernCity city;
+    Interface::Location first_location(6700000, 3500000);
+    Interface::Location second_location(4500000, 2000000);
+
+
+    StudentSide::PlayerActor player1(first_location);
+    StudentSide::PlayerActor player2(second_location);
+    StudentSide::Enemy enemy(second_location, {});
+
+    city.addActor(player1);
+    city.addActor(player2);
+    city.addActor(enemy);
+
+    EXPECT_EQ(city.countActiveActors(StudentSide::ActorType::Player), 2);
+    EXPECT_EQ(city.countActiveActors(StudentSide::ActorType::Enemy), 1);
+
+    EXPECT_TRUE(city.findFirstCloseActorLocation(first_location, 100).has_value());
+    EXPECT_TRUE(city.findFirstCloseActorLocation(second_location, 100).has_value());
+
+    // Get an actor by index
+    auto& actor = city.getActor(0);
+    std::get<StudentSide::PlayerActor>(actor).remove();
+    city.removeDeadActors();
+    EXPECT_EQ(city.countActiveActors(StudentSide::ActorType::Player), 1);
 }
