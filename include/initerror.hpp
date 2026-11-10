@@ -1,6 +1,4 @@
-#ifndef INITERROR_HH
-#define INITERROR_HH
-
+#pragma once
 #include <exception>
 #include <string>
 
@@ -62,5 +60,3 @@ private:
 };
 
 } // Namespace Interface
-
-#endif // INITERROR_HH

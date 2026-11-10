@@ -1,5 +1,4 @@
-#ifndef ENEMY_HH
-#define ENEMY_HH
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -35,5 +34,3 @@ private:
 };
 
 }
-
-#endif // ENEMY_HH

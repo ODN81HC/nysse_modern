@@ -1,5 +1,4 @@
-#ifndef PLAYERACTOR_H
-#define PLAYERACTOR_H
+#pragma once
 
 #include "iactor.hpp"
 
@@ -22,5 +21,3 @@ private:
 };
 
 }
-
-#endif // PLAYERACTOR_H

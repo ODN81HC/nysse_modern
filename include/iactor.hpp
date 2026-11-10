@@ -1,6 +1,4 @@
-#ifndef IACTOR_HH
-#define IACTOR_HH
-
+#pragma once
 #include "location.hpp"
 
 
@@ -69,5 +67,3 @@ public:
 };
 
 }
-
-#endif // IACTOR_HH

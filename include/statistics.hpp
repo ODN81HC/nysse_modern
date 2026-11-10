@@ -1,5 +1,4 @@
-#ifndef STATISTICS_H
-#define STATISTICS_H
+#pragma once
 
 #include "istatistics.hpp"
 #include "initerror.hpp"
@@ -55,4 +54,3 @@ private:
    int score_;
 };
 }
-#endif // STATISTICS_H
