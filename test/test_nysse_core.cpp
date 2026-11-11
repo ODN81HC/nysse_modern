@@ -5,6 +5,7 @@
 #include "statistics.hpp"
 #include "actor_variant_helpers.hpp"
 #include "modern_city.hpp"
+#include "pinhole_camera.hpp"
 
 // 1. Port of testMorePassenger from your 2019 tst_statisticstest.cpp
 TEST(StatisticsTest, MorePassengers)
@@ -132,4 +133,35 @@ TEST(ModernCityTest, AddCountFindAndRemove)
     std::get<StudentSide::PlayerActor>(actor).remove();
     city.removeDeadActors();
     EXPECT_EQ(city.countActiveActors(StudentSide::ActorType::Player), 1);
+}
+
+TEST(PinholeCameraTest, ProjectAndBackProject)
+{
+    Eigen::Matrix3d test_intrinsic_matrix = Eigen::Matrix3d::Zero();
+    // Add values
+    test_intrinsic_matrix(0, 0) = 1000.0;
+    test_intrinsic_matrix(1, 1) = 1000.0;
+    test_intrinsic_matrix(0, 2) = 960.0;
+    test_intrinsic_matrix(1, 2) = 540.0;
+    test_intrinsic_matrix(2, 2) = 1.0;
+
+    cv::Size test_image_size(1920, 1000);
+    PinholeCamera test_camera(test_intrinsic_matrix, test_image_size);
+    // Test 1
+    EXPECT_EQ(test_camera.projectToPixel(Eigen::Vector3d(0.0, 0.0, 10.0)), cv::Point2i(960, 540));
+    // Test 2
+    cv::Point2i test_point = cv::Point2i(150, 250);
+    std::optional<Eigen::Vector3d> back_projected_point = test_camera.backProjectToGround(test_point, 10.0);
+    EXPECT_TRUE(back_projected_point.has_value());
+    EXPECT_EQ(test_camera.projectToPixel(back_projected_point.value()), test_point);
+
+    // Test inline convertTo3d function
+    Interface::Location test_location;
+    test_location.setXY(1, 1);
+    Eigen::Vector3d test_3d_point = convertTo3d(test_location);
+    test_3d_point.z() = 10.0;
+
+    auto pixel_point = test_camera.projectToPixel(test_3d_point);
+    EXPECT_TRUE(pixel_point.has_value());
+    EXPECT_EQ(pixel_point.value(), cv::Point2i(1060, 640));
 }
