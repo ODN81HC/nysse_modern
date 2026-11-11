@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <thread>
+
 #include "enemy.hpp"
 #include "location.hpp"
 #include "playeractor.hpp"
@@ -6,6 +8,7 @@
 #include "actor_variant_helpers.hpp"
 #include "modern_city.hpp"
 #include "pinhole_camera.hpp"
+#include "thread_safe_queue.hpp"
 
 // 1. Port of testMorePassenger from your 2019 tst_statisticstest.cpp
 TEST(StatisticsTest, MorePassengers)
@@ -164,4 +167,34 @@ TEST(PinholeCameraTest, ProjectAndBackProject)
     auto pixel_point = test_camera.projectToPixel(test_3d_point);
     EXPECT_TRUE(pixel_point.has_value());
     EXPECT_EQ(pixel_point.value(), cv::Point2i(1060, 640));
+}
+
+TEST(ThreadSafeQueueTest, PushAndPop)
+{
+    ThreadSafeQueue<cv::Point2i> test_queue;
+    test_queue.push(cv::Point2i(100, 200));
+    test_queue.push(cv::Point2i(300, 400));
+    test_queue.push(cv::Point2i(500, 600));
+
+    EXPECT_FALSE(test_queue.empty());
+    EXPECT_EQ(static_cast<int>(test_queue.size()), 3);
+
+    auto item1 = test_queue.pop();
+    EXPECT_TRUE(item1.has_value());
+    EXPECT_EQ(item1.value(), cv::Point2i(100, 200));
+
+    auto item2 = test_queue.pop();
+    EXPECT_TRUE(item2.has_value());
+    EXPECT_EQ(item2.value(), cv::Point2i(300, 400));
+
+    auto item3 = test_queue.pop();
+    EXPECT_TRUE(item3.has_value());
+    EXPECT_EQ(item3.value(), cv::Point2i(500, 600));
+
+    EXPECT_TRUE(test_queue.empty());
+}
+
+TEST(ThreadsTest, AsynchronousThreadSafe)
+{
+    ThreadSafeQueue<cv::Point2i> test_queue;
 }
