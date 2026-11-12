@@ -18,6 +18,7 @@ std::optional<cv::Point2i> PinholeCamera::projectToPixel(const Eigen::Vector3d& 
 
     if (pixel_u < 0 || pixel_u >= image_size_.width || pixel_v < 0 || pixel_v >= image_size_.height)
     {
+        std::cerr << "Pixel coordinates out of bounds: (" << pixel_u << ", " << pixel_v << ")\n";
         return std::nullopt;
     }
     return cv::Point2i(static_cast<int>(pixel_u), static_cast<int>(pixel_v));

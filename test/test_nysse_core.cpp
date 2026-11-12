@@ -196,5 +196,50 @@ TEST(ThreadSafeQueueTest, PushAndPop)
 
 TEST(ThreadsTest, AsynchronousThreadSafe)
 {
-    ThreadSafeQueue<cv::Point2i> test_queue;
+    ThreadSafeQueue<Eigen::Vector3d> test_queue;
+    Eigen::Matrix3d test_intrinsic_matrix = Eigen::Matrix3d::Zero();
+    // Add values
+    test_intrinsic_matrix(0, 0) = 1000.0;
+    test_intrinsic_matrix(1, 1) = 1000.0;
+    test_intrinsic_matrix(0, 2) = 960.0;
+    test_intrinsic_matrix(1, 2) = 540.0;
+    test_intrinsic_matrix(2, 2) = 1.0;
+    cv::Size test_image_size(1920, 1000);
+    PinholeCamera test_camera(test_intrinsic_matrix, test_image_size);
+    std::vector<cv::Point2i> processed_pixels;
+
+    std::jthread producer_thread([&test_queue]() {
+        for (int i = 0; i < 10; ++i) {
+            double element = static_cast<double>(i);
+            test_queue.push(Eigen::Vector3d(element, element, 100.0));
+            // Put some small delay
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
+        // No more elements will be pushed
+        test_queue.request_stop();
+    });
+
+    std::jthread consumer_thread([&test_queue, &test_camera, &processed_pixels]() {
+        while(true) {
+            auto point_opt = test_queue.pop();
+            if (point_opt.has_value())
+            {
+                std::optional<cv::Point2i> received_pixel = test_camera.projectToPixel(point_opt.value());
+                EXPECT_TRUE(received_pixel.has_value());
+                if (received_pixel.has_value())
+                {
+                    processed_pixels.push_back(received_pixel.value());
+                }
+            }
+            else
+            {   
+                break;
+            }
+        }
+    });
+
+    // jthread can join automatically but let's call .join() here just to be sure
+    producer_thread.join();
+    consumer_thread.join();
+    EXPECT_EQ(processed_pixels.size(), 10);
 }
