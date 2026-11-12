@@ -208,19 +208,22 @@ TEST(ThreadsTest, AsynchronousThreadSafe)
     PinholeCamera test_camera(test_intrinsic_matrix, test_image_size);
     std::vector<cv::Point2i> processed_pixels;
 
-    std::jthread producer_thread([&test_queue]() {
+    std::jthread producer_thread([&test_queue](std::stop_token stop_token) {
         for (int i = 0; i < 10; ++i) {
             double element = static_cast<double>(i);
             test_queue.push(Eigen::Vector3d(element, element, 100.0));
             // Put some small delay
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            if (stop_token.stop_requested()) {
+                break;
+            }
         }
         // No more elements will be pushed
         test_queue.request_stop();
     });
 
-    std::jthread consumer_thread([&test_queue, &test_camera, &processed_pixels]() {
-        while(true) {
+    std::jthread consumer_thread([&test_queue, &test_camera, &processed_pixels](std::stop_token stop_token) {
+        while(!stop_token.stop_requested()) {
             auto point_opt = test_queue.pop();
             if (point_opt.has_value())
             {
